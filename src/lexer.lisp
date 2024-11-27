@@ -1,7 +1,8 @@
 (defpackage #:lexer
   (:use :cl)
   (:export #:slic-lexer
-	   #:next-token!))
+	   #:next-token!
+	   #:next-token-skip-whitespace!))
 
 (in-package #:lexer)
 
@@ -15,7 +16,12 @@
     :initarg index
     :initform 0
     :accessor index
-    :type integer)))
+    :type integer)
+   (latest-token
+    ;:initarg last-token
+    :initform nil
+    :accessor latest-token
+   ))
 
 (defgeneric get-char (lexer)
   (:documentation "Return the current character from the input-string")
@@ -38,20 +44,22 @@
 (defgeneric next-token! (lexer)
   (:documentation "Return the next token from the input-string"))
 
+(declaim (ftype (function (lexer function) string) collect-all-matches))
 (defun collect-all-matches (lexer predicate)
   "Collect all matches to the predicate from the lexer"
-  (coerce 'string
+  (coerce 
 	  (loop
 	    for char = (get-char lexer)
 	    while (and (not (null char)) (apply predicate (list char)))
 	    do (advance-char! lexer)
-	    collect char)))
+	    collect char) 'string))
 
 (defun whitespace-char-p (ch)
   (or
    (char= ch #\Space)
    (char= ch #\Tab)
    (char= ch #\Newline)))
+
 
 (defmethod next-token! ((lexer slic-lexer))
   (let ((ch (get-char lexer)))
@@ -79,3 +87,8 @@
       ((alpha-char-p ch)
        (collect-all-matches lexer #'alpha-char-p))
       (t (error "no match")))))
+
+(defmethod next-token-skip-whitespace! ((lexer slic-lexer))
+  (loop for tok = (next-token! lexer)
+	while (and (not (null tok)) (string= tok " "))
+	finally (return tok)))
