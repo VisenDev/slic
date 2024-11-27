@@ -4,5 +4,6 @@
   :serial t
   :components
   ((:file "src/utils")
-   (:file "src/lexer")))
+   (:file "src/lexer")
+   (:file "src/parser")))
 

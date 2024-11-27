@@ -1,5 +1,7 @@
 (defpackage #:lexer
-  (:use :cl))
+  (:use :cl)
+  (:export #:slic-lexer
+	   #:next-token!))
 
 (in-package #:lexer)
 
@@ -33,7 +35,7 @@
 (defclass slic-lexer  (lexer) ()
   (:documentation "lexer implementation for slic"))
 
-(defgeneric next-token (lexer)
+(defgeneric next-token! (lexer)
   (:documentation "Return the next token from the input-string"))
 
 (defun collect-all-matches (lexer predicate)
@@ -51,9 +53,9 @@
    (char= ch #\Tab)
    (char= ch #\Newline)))
 
-(defmethod next-token ((lexer slic-lexer))
+(defmethod next-token! ((lexer slic-lexer))
   (let ((ch (get-char lexer)))
-    (when (null ch) (return-from next-token nil))
+    (when (null ch) (return-from next-token! nil))
     (cond
       ((char= ch #\()
        (advance-char! lexer)
