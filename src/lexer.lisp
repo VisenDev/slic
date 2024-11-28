@@ -20,7 +20,7 @@
    (latest-token
     ;:initarg last-token
     :initform nil
-    :accessor latest-token
+    :accessor latest-token)
    ))
 
 (defgeneric get-char (lexer)
@@ -62,7 +62,8 @@
 
 
 (defmethod next-token! ((lexer slic-lexer))
-  (let ((ch (get-char lexer)))
+  (setf (latest-token lexer) 
+   (let ((ch (get-char lexer)))
     (when (null ch) (return-from next-token! nil))
     (cond
       ((char= ch #\()
@@ -86,7 +87,7 @@
        (collect-all-matches lexer #'digit-char-p))
       ((alpha-char-p ch)
        (collect-all-matches lexer #'alpha-char-p))
-      (t (error "no match")))))
+      (t (error "no match"))))))
 
 (defmethod next-token-skip-whitespace! ((lexer slic-lexer))
   (loop for tok = (next-token! lexer)

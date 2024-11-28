@@ -90,7 +90,7 @@
       ;;ensure open parenthesis
       (unless (string= tok "(")
 	(report-parse-error! parser "Top level missing open parenthesis"))
-      (push :open-parenthesis (ast parser)) ;update ast
+      (append-ast-node! parser :open-parenthesis) ;update ast
       (setf tok (lx:next-token-skip-whitespace! l)) ;update tok
 
       ;;ensure valid next statement
@@ -118,10 +118,11 @@
     (unless (alpha-char-p (char tok 0))
 	    (report-parse-error! parser
 				"symbol must start with a letter"))
+      (append-ast-node! parser
     (loop collect tok
 	  while (every #'symbol-char-p tok)
 	  do (setf tok (lx:next-token! l))
-      ))))
+      )))))
     
 
 
